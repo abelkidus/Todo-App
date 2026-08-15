@@ -1,7 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:todo_app/pages/home_page.dart';
 
-void main() {
+Future<void> initHive() async {
+  final appDocumentDirectory = await getApplicationDocumentsDirectory();
+  Hive.init(appDocumentDirectory.path);
+  await Hive.openBox('mybox');
+}
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await initHive();
   runApp(const MyApp());
 }
 
