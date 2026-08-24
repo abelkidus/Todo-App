@@ -24,12 +24,10 @@ class _HomePageState extends State<HomePage> {
 
   void checkBoxChanged(bool? value, int index) {
     setState(() {
-      final item = db.toDoList[index];
-      if (item is Task) {
-        db.toDoList[index] = item.copyWith(isCompleted: !(item.isCompleted));
-      } else if (item is List) {
-        item[1] = !item[1];
-      }
+      final task = db.toDoList[index];
+      db.toDoList[index] = task.copyWith(
+        isCompleted: value ?? !task.isCompleted,
+      );
       db.updateDataBase();
     });
   }
@@ -41,19 +39,24 @@ class _HomePageState extends State<HomePage> {
     Priority? priority,
     DateTime? dueDate,
   ]) {
-    setState(() {
-      final taskTitle =
-          (title != null && title.isNotEmpty) ? title : _controller.text;
-      db.toDoList.add([
-        taskTitle,
-        false,
-        priority ?? Priority.medium,
-        category ?? 'General',
-        dueDate,
-      ]);
-      _controller.clear();
-      db.updateDataBase();
-    });
+    final taskTitle =
+        (title != null && title.isNotEmpty) ? title : _controller.text;
+    if (taskTitle.trim().isNotEmpty) {
+      setState(() {
+        db.toDoList.add(
+          Task(
+            id: DateTime.now().millisecondsSinceEpoch.toString(),
+            title: taskTitle.trim(),
+            isCompleted: false,
+            priority: priority ?? Priority.medium,
+            category: category ?? 'General',
+            dueDate: dueDate,
+          ),
+        );
+        _controller.clear();
+        db.updateDataBase();
+      });
+    }
     Navigator.of(context).pop();
   }
 
@@ -92,39 +95,10 @@ class _HomePageState extends State<HomePage> {
       body: ListView.builder(
         itemCount: db.toDoList.length,
         itemBuilder: (context, index) {
-          final item = db.toDoList[index];
-          String name = '';
-          bool completed = false;
-          Priority priority = Priority.medium;
-          String category = 'General';
-          DateTime? dueDate;
+          final task = db.toDoList[index];
 
-          if (item is Task) {
-            name = item.title;
-            completed = item.isCompleted;
-            priority = item.priority;
-            category = item.category;
-            dueDate = item.dueDate;
-          } else if (item is List) {
-            name = item[0] as String;
-            completed = item[1] as bool;
-            if (item.length > 2 && item[2] is Priority) {
-              priority = item[2] as Priority;
-            }
-            if (item.length > 3 && item[3] is String) {
-              category = item[3] as String;
-            }
-            if (item.length > 4 && item[4] is DateTime?) {
-              dueDate = item[4] as DateTime?;
-            }
-          }
-
-          return ToDoTile(
-            taskName: name,
-            taskCompleted: completed,
-            priority: priority,
-            category: category,
-            dueDate: dueDate,
+          return ToDoTile.fromTask(
+            task: task,
             onChanged: (value) => checkBoxChanged(value, index),
             deleteFunction: (context) => deleteTask(index),
           );
