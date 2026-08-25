@@ -5,21 +5,29 @@ import 'package:todo_app/util/dialog_box.dart';
 import 'package:todo_app/util/todo_tile.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final ToDoDataBase? database;
+  const HomePage({super.key, this.database});
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-  ToDoDataBase db = ToDoDataBase();
+  late ToDoDataBase db;
 
   final _controller = TextEditingController();
 
   @override
   void initState() {
     super.initState();
+    db = widget.database ?? ToDoDataBase();
     db.loadData();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   void checkBoxChanged(bool? value, int index) {
@@ -74,10 +82,49 @@ class _HomePageState extends State<HomePage> {
   }
 
   void deleteTask(int index) {
+    final deletedTask = db.toDoList[index];
+    final deletedIndex = index;
+
     setState(() {
       db.toDoList.removeAt(index);
       db.updateDataBase();
     });
+
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Task "${deletedTask.title}" deleted'),
+        action: SnackBarAction(
+          label: 'Undo',
+          onPressed: () {
+            setState(() {
+              final insertIndex = deletedIndex.clamp(0, db.toDoList.length);
+              db.toDoList.insert(insertIndex, deletedTask);
+              db.updateDataBase();
+            });
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDismissBackground({
+    required Alignment alignment,
+    required EdgeInsets padding,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(left: 20, top: 16, right: 20),
+      decoration: BoxDecoration(
+        color: Colors.red,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      alignment: alignment,
+      padding: padding,
+      child: const Icon(
+        Icons.delete,
+        color: Colors.white,
+      ),
+    );
   }
 
   @override
@@ -97,10 +144,22 @@ class _HomePageState extends State<HomePage> {
         itemBuilder: (context, index) {
           final task = db.toDoList[index];
 
-          return ToDoTile.fromTask(
-            task: task,
-            onChanged: (value) => checkBoxChanged(value, index),
-            deleteFunction: (context) => deleteTask(index),
+          return Dismissible(
+            key: Key(task.id),
+            background: _buildDismissBackground(
+              alignment: Alignment.centerLeft,
+              padding: const EdgeInsets.only(left: 20),
+            ),
+            secondaryBackground: _buildDismissBackground(
+              alignment: Alignment.centerRight,
+              padding: const EdgeInsets.only(right: 20),
+            ),
+            onDismissed: (direction) => deleteTask(index),
+            child: ToDoTile.fromTask(
+              task: task,
+              onChanged: (value) => checkBoxChanged(value, index),
+              deleteFunction: (context) => deleteTask(index),
+            ),
           );
         },
       ),
