@@ -310,4 +310,28 @@ void main() {
     expect(find.text('Exercise'), findsOneWidget);
     expect(find.text('Submit taxes'), findsOneWidget);
   });
+
+  testWidgets(
+      'displays DashboardBanner with live progress updates when toggling tasks',
+      (WidgetTester tester) async {
+    final db = FakeToDoDataBase();
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: HomePage(database: db),
+      ),
+    );
+    await tester.pump();
+
+    // Initially: 1 completed ("Exercise") of 3 total tasks -> 33%
+    expect(find.text('1 of 3 completed (33%)'), findsOneWidget);
+
+    // Toggle the first checkbox ("Watch tutorial") to completed
+    final firstCheckbox = find.byType(Checkbox).first;
+    await tester.tap(firstCheckbox);
+    await tester.pumpAndSettle();
+
+    // Now: 2 completed of 3 total tasks -> 66%
+    expect(find.text('2 of 3 completed (66%)'), findsOneWidget);
+  });
 }

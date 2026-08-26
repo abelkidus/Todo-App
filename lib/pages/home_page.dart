@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:todo_app/data/database.dart';
 import 'package:todo_app/models/task.dart';
+import 'package:todo_app/util/dashboard_banner.dart';
 import 'package:todo_app/util/dialog_box.dart';
 import 'package:todo_app/util/todo_tile.dart';
 
@@ -216,6 +217,8 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final tasks = _filteredAndSortedTasks;
+    final totalCount = db.toDoList.length;
+    final completedCount = db.toDoList.where((t) => t.isCompleted).length;
 
     return Scaffold(
       backgroundColor: Colors.yellow[200],
@@ -386,6 +389,12 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
             ),
+          ),
+
+          // Dashboard Progress Banner
+          DashboardBanner(
+            completedCount: completedCount,
+            totalCount: totalCount,
           ),
 
           // Tasks List
