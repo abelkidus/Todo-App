@@ -246,4 +246,68 @@ void main() {
         .toList();
     expect(tilesDueDate, ['Submit taxes', 'Exercise', 'Watch tutorial']);
   });
+
+  testWidgets(
+      'interactive search bar filters tasks in real time, supports clearing and exiting',
+      (WidgetTester tester) async {
+    final db = FakeToDoDataBase();
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: HomePage(database: db),
+      ),
+    );
+    await tester.pump();
+
+    // Verify all 3 tasks are present initially
+    expect(find.text('Watch tutorial'), findsOneWidget);
+    expect(find.text('Exercise'), findsOneWidget);
+    expect(find.text('Submit taxes'), findsOneWidget);
+
+    // Tap search icon in AppBar
+    await tester.tap(find.byIcon(Icons.search));
+    await tester.pumpAndSettle();
+
+    // Search TextField should now be visible
+    expect(find.byType(TextField), findsOneWidget);
+    expect(find.text('Search tasks...'), findsOneWidget);
+
+    // Type query "tax"
+    await tester.enterText(find.byType(TextField), 'tax');
+    await tester.pumpAndSettle();
+
+    // Only "Submit taxes" should match
+    expect(find.text('Submit taxes'), findsOneWidget);
+    expect(find.text('Watch tutorial'), findsNothing);
+    expect(find.text('Exercise'), findsNothing);
+
+    // Tap Clear icon (X) in actions
+    expect(find.byIcon(Icons.clear), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.clear));
+    await tester.pumpAndSettle();
+
+    // All tasks restored while still in search mode
+    expect(find.text('Watch tutorial'), findsOneWidget);
+    expect(find.text('Exercise'), findsOneWidget);
+    expect(find.text('Submit taxes'), findsOneWidget);
+
+    // Type another query "watch"
+    await tester.enterText(find.byType(TextField), 'watch');
+    await tester.pumpAndSettle();
+
+    expect(find.text('Watch tutorial'), findsOneWidget);
+    expect(find.text('Exercise'), findsNothing);
+    expect(find.text('Submit taxes'), findsNothing);
+
+    // Tap Back icon in leading position
+    await tester.tap(find.byIcon(Icons.arrow_back));
+    await tester.pumpAndSettle();
+
+    // Exited search mode and restored default AppBar
+    expect(find.text('TO DO'), findsOneWidget);
+    expect(find.byIcon(Icons.search), findsOneWidget);
+    expect(find.text('Watch tutorial'), findsOneWidget);
+    expect(find.text('Exercise'), findsOneWidget);
+    expect(find.text('Submit taxes'), findsOneWidget);
+  });
 }

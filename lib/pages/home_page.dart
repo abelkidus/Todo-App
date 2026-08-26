@@ -34,7 +34,10 @@ class _HomePageState extends State<HomePage> {
   late ToDoDataBase db;
 
   final _controller = TextEditingController();
+  final _searchController = TextEditingController();
 
+  bool _isSearching = false;
+  String _searchQuery = '';
   TaskStatusFilter _statusFilter = TaskStatusFilter.all;
   String _selectedCategory = 'All';
   SortOption _sortOption = SortOption.none;
@@ -59,6 +62,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void dispose() {
     _controller.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -74,6 +78,12 @@ class _HomePageState extends State<HomePage> {
 
   List<Task> get _filteredAndSortedTasks {
     List<Task> list = List.from(db.toDoList);
+
+    // Filter by search query keywords
+    if (_searchQuery.trim().isNotEmpty) {
+      final query = _searchQuery.trim().toLowerCase();
+      list = list.where((t) => t.title.toLowerCase().contains(query)).toList();
+    }
 
     // Filter by completion status
     if (_statusFilter == TaskStatusFilter.active) {
@@ -210,10 +220,68 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: Colors.yellow[200],
       appBar: AppBar(
-        title: const Text('TO DO'),
-        centerTitle: true,
+        title: _isSearching
+            ? TextField(
+                controller: _searchController,
+                autofocus: true,
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontSize: 18,
+                ),
+                decoration: const InputDecoration(
+                  hintText: 'Search tasks...',
+                  border: InputBorder.none,
+                  hintStyle: TextStyle(
+                    color: Colors.black54,
+                    fontSize: 18,
+                  ),
+                ),
+                onChanged: (value) {
+                  setState(() {
+                    _searchQuery = value;
+                  });
+                },
+              )
+            : const Text('TO DO'),
+        centerTitle: !_isSearching,
         elevation: 0,
+        leading: _isSearching
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back),
+                tooltip: 'Back',
+                onPressed: () {
+                  setState(() {
+                    _isSearching = false;
+                    _searchController.clear();
+                    _searchQuery = '';
+                  });
+                },
+              )
+            : null,
         actions: [
+          if (_isSearching) ...[
+            if (_searchQuery.isNotEmpty)
+              IconButton(
+                icon: const Icon(Icons.clear),
+                tooltip: 'Clear search',
+                onPressed: () {
+                  setState(() {
+                    _searchController.clear();
+                    _searchQuery = '';
+                  });
+                },
+              ),
+          ] else ...[
+            IconButton(
+              icon: const Icon(Icons.search),
+              tooltip: 'Search tasks',
+              onPressed: () {
+                setState(() {
+                  _isSearching = true;
+                });
+              },
+            ),
+          ],
           PopupMenuButton<SortOption>(
             icon: const Icon(Icons.sort),
             tooltip: 'Sort tasks',
