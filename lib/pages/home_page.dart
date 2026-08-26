@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:todo_app/data/database.dart';
 import 'package:todo_app/models/task.dart';
+import 'package:todo_app/services/notification_service.dart';
 import 'package:todo_app/util/dashboard_banner.dart';
 import 'package:todo_app/util/dialog_box.dart';
 import 'package:todo_app/util/todo_tile.dart';
@@ -25,7 +26,8 @@ enum SortOption {
 
 class HomePage extends StatefulWidget {
   final ToDoDataBase? database;
-  const HomePage({super.key, this.database});
+  final NotificationService? notifications;
+  const HomePage({super.key, this.database, this.notifications});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -33,6 +35,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late ToDoDataBase db;
+  late NotificationService notifications;
 
   final _controller = TextEditingController();
   final _searchController = TextEditingController();
@@ -57,6 +60,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     db = widget.database ?? ToDoDataBase();
+    notifications = widget.notifications ?? NotificationService();
     db.loadData();
   }
 
@@ -116,12 +120,19 @@ class _HomePageState extends State<HomePage> {
   void checkBoxChanged(bool? value, Task task) {
     final index = db.toDoList.indexWhere((t) => t.id == task.id);
     if (index != -1) {
+      final updatedTask = task.copyWith(
+        isCompleted: value ?? !task.isCompleted,
+      );
       setState(() {
-        db.toDoList[index] = task.copyWith(
-          isCompleted: value ?? !task.isCompleted,
-        );
+        db.toDoList[index] = updatedTask;
         db.updateDataBase();
       });
+
+      if (updatedTask.isCompleted) {
+        notifications.cancelTaskNotification(updatedTask.id);
+      } else {
+        notifications.scheduleTaskDeadlineNotification(updatedTask);
+      }
     }
   }
 
@@ -135,20 +146,20 @@ class _HomePageState extends State<HomePage> {
     final taskTitle =
         (title != null && title.isNotEmpty) ? title : _controller.text;
     if (taskTitle.trim().isNotEmpty) {
+      final newTask = Task(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        title: taskTitle.trim(),
+        isCompleted: false,
+        priority: priority ?? Priority.medium,
+        category: category ?? 'General',
+        dueDate: dueDate,
+      );
       setState(() {
-        db.toDoList.add(
-          Task(
-            id: DateTime.now().millisecondsSinceEpoch.toString(),
-            title: taskTitle.trim(),
-            isCompleted: false,
-            priority: priority ?? Priority.medium,
-            category: category ?? 'General',
-            dueDate: dueDate,
-          ),
-        );
+        db.toDoList.add(newTask);
         _controller.clear();
         db.updateDataBase();
       });
+      notifications.scheduleTaskDeadlineNotification(newTask);
     }
     Navigator.of(context).pop();
   }
@@ -177,6 +188,8 @@ class _HomePageState extends State<HomePage> {
       db.updateDataBase();
     });
 
+    notifications.cancelTaskNotification(deletedTask.id);
+
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -189,6 +202,9 @@ class _HomePageState extends State<HomePage> {
               db.toDoList.insert(insertIndex, deletedTask);
               db.updateDataBase();
             });
+            if (!deletedTask.isCompleted) {
+              notifications.scheduleTaskDeadlineNotification(deletedTask);
+            }
           },
         ),
       ),

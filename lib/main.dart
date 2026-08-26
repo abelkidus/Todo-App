@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:todo_app/pages/home_page.dart';
+import 'package:todo_app/services/notification_service.dart';
 
 Future<void> initHive() async {
   final appDocumentDirectory = await getApplicationDocumentsDirectory();
@@ -12,6 +13,7 @@ Future<void> initHive() async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initHive();
+  await NotificationService().init();
   runApp(const MyApp());
 }
 
