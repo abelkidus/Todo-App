@@ -4,6 +4,24 @@ import 'package:todo_app/models/task.dart';
 import 'package:todo_app/util/dialog_box.dart';
 import 'package:todo_app/util/todo_tile.dart';
 
+enum TaskStatusFilter {
+  all('All'),
+  active('Active'),
+  done('Done');
+
+  final String label;
+  const TaskStatusFilter(this.label);
+}
+
+enum SortOption {
+  none('Default'),
+  priority('Priority'),
+  dueDate('Due Date');
+
+  final String label;
+  const SortOption(this.label);
+}
+
 class HomePage extends StatefulWidget {
   final ToDoDataBase? database;
   const HomePage({super.key, this.database});
@@ -16,6 +34,20 @@ class _HomePageState extends State<HomePage> {
   late ToDoDataBase db;
 
   final _controller = TextEditingController();
+
+  TaskStatusFilter _statusFilter = TaskStatusFilter.all;
+  String _selectedCategory = 'All';
+  SortOption _sortOption = SortOption.none;
+
+  static const List<String> _predefinedCategories = [
+    'All',
+    'General',
+    'Work',
+    'Personal',
+    'Fitness',
+    'Study',
+    'Learning',
+  ];
 
   @override
   void initState() {
@@ -30,14 +62,56 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
-  void checkBoxChanged(bool? value, int index) {
-    setState(() {
-      final task = db.toDoList[index];
-      db.toDoList[index] = task.copyWith(
-        isCompleted: value ?? !task.isCompleted,
-      );
-      db.updateDataBase();
-    });
+  List<String> get _availableCategories {
+    final categories = <String>{'All', ..._predefinedCategories};
+    for (final task in db.toDoList) {
+      if (task.category.isNotEmpty) {
+        categories.add(task.category);
+      }
+    }
+    return categories.toList();
+  }
+
+  List<Task> get _filteredAndSortedTasks {
+    List<Task> list = List.from(db.toDoList);
+
+    // Filter by completion status
+    if (_statusFilter == TaskStatusFilter.active) {
+      list = list.where((t) => !t.isCompleted).toList();
+    } else if (_statusFilter == TaskStatusFilter.done) {
+      list = list.where((t) => t.isCompleted).toList();
+    }
+
+    // Filter by category
+    if (_selectedCategory != 'All') {
+      list = list.where((t) => t.category == _selectedCategory).toList();
+    }
+
+    // Sort
+    if (_sortOption == SortOption.priority) {
+      list.sort((a, b) => b.priority.index.compareTo(a.priority.index));
+    } else if (_sortOption == SortOption.dueDate) {
+      list.sort((a, b) {
+        if (a.dueDate == null && b.dueDate == null) return 0;
+        if (a.dueDate == null) return 1;
+        if (b.dueDate == null) return -1;
+        return a.dueDate!.compareTo(b.dueDate!);
+      });
+    }
+
+    return list;
+  }
+
+  void checkBoxChanged(bool? value, Task task) {
+    final index = db.toDoList.indexWhere((t) => t.id == task.id);
+    if (index != -1) {
+      setState(() {
+        db.toDoList[index] = task.copyWith(
+          isCompleted: value ?? !task.isCompleted,
+        );
+        db.updateDataBase();
+      });
+    }
   }
 
   // saving the new task
@@ -81,12 +155,14 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void deleteTask(int index) {
-    final deletedTask = db.toDoList[index];
-    final deletedIndex = index;
+  void deleteTask(Task task) {
+    final deletedIndex = db.toDoList.indexWhere((t) => t.id == task.id);
+    if (deletedIndex == -1) return;
+
+    final deletedTask = db.toDoList[deletedIndex];
 
     setState(() {
-      db.toDoList.removeAt(index);
+      db.toDoList.removeAt(deletedIndex);
       db.updateDataBase();
     });
 
@@ -129,39 +205,160 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final tasks = _filteredAndSortedTasks;
+
     return Scaffold(
       backgroundColor: Colors.yellow[200],
       appBar: AppBar(
-        title: const Center(child: Text('TO DO')),
+        title: const Text('TO DO'),
+        centerTitle: true,
         elevation: 0,
+        actions: [
+          PopupMenuButton<SortOption>(
+            icon: const Icon(Icons.sort),
+            tooltip: 'Sort tasks',
+            initialValue: _sortOption,
+            onSelected: (SortOption option) {
+              setState(() {
+                _sortOption = option;
+              });
+            },
+            itemBuilder: (BuildContext context) => [
+              const PopupMenuItem(
+                value: SortOption.none,
+                child: Text('Default Order'),
+              ),
+              const PopupMenuItem(
+                value: SortOption.priority,
+                child: Text('Sort by Priority'),
+              ),
+              const PopupMenuItem(
+                value: SortOption.dueDate,
+                child: Text('Sort by Due Date'),
+              ),
+            ],
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: createNewTask,
         child: const Icon(Icons.add),
       ),
-      body: ListView.builder(
-        itemCount: db.toDoList.length,
-        itemBuilder: (context, index) {
-          final task = db.toDoList[index];
+      body: Column(
+        children: [
+          // Filter Chips Section
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: [
+                  // Status filters
+                  for (final status in TaskStatusFilter.values) ...[
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: ChoiceChip(
+                        label: Text(status.label),
+                        selected: _statusFilter == status,
+                        selectedColor: Colors.black,
+                        labelStyle: TextStyle(
+                          color: _statusFilter == status
+                              ? Colors.yellow
+                              : Colors.black87,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13,
+                        ),
+                        backgroundColor: Colors.yellow[300],
+                        onSelected: (selected) {
+                          if (selected) {
+                            setState(() {
+                              _statusFilter = status;
+                            });
+                          }
+                        },
+                      ),
+                    ),
+                  ],
 
-          return Dismissible(
-            key: Key(task.id),
-            background: _buildDismissBackground(
-              alignment: Alignment.centerLeft,
-              padding: const EdgeInsets.only(left: 20),
+                  // Divider between status and category
+                  Container(
+                    height: 24,
+                    width: 1.5,
+                    color: Colors.black26,
+                    margin: const EdgeInsets.symmetric(horizontal: 6),
+                  ),
+
+                  // Category filters
+                  for (final category in _availableCategories) ...[
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: ChoiceChip(
+                        label: Text(category),
+                        selected: _selectedCategory == category,
+                        selectedColor: Colors.black,
+                        labelStyle: TextStyle(
+                          color: _selectedCategory == category
+                              ? Colors.yellow
+                              : Colors.black87,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13,
+                        ),
+                        backgroundColor: Colors.yellow[300],
+                        onSelected: (selected) {
+                          if (selected) {
+                            setState(() {
+                              _selectedCategory = category;
+                            });
+                          }
+                        },
+                      ),
+                    ),
+                  ],
+                ],
+              ),
             ),
-            secondaryBackground: _buildDismissBackground(
-              alignment: Alignment.centerRight,
-              padding: const EdgeInsets.only(right: 20),
-            ),
-            onDismissed: (direction) => deleteTask(index),
-            child: ToDoTile.fromTask(
-              task: task,
-              onChanged: (value) => checkBoxChanged(value, index),
-              deleteFunction: (context) => deleteTask(index),
-            ),
-          );
-        },
+          ),
+
+          // Tasks List
+          Expanded(
+            child: tasks.isEmpty
+                ? const Center(
+                    child: Text(
+                      'No tasks found',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.black54,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  )
+                : ListView.builder(
+                    itemCount: tasks.length,
+                    itemBuilder: (context, index) {
+                      final task = tasks[index];
+
+                      return Dismissible(
+                        key: Key(task.id),
+                        background: _buildDismissBackground(
+                          alignment: Alignment.centerLeft,
+                          padding: const EdgeInsets.only(left: 20),
+                        ),
+                        secondaryBackground: _buildDismissBackground(
+                          alignment: Alignment.centerRight,
+                          padding: const EdgeInsets.only(right: 20),
+                        ),
+                        onDismissed: (direction) => deleteTask(task),
+                        child: ToDoTile.fromTask(
+                          task: task,
+                          onChanged: (value) => checkBoxChanged(value, task),
+                          deleteFunction: (context) => deleteTask(task),
+                        ),
+                      );
+                    },
+                  ),
+          ),
+        ],
       ),
     );
   }
