@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:todo_app/data/database.dart';
 import 'package:todo_app/models/task.dart';
 import 'package:todo_app/services/notification_service.dart';
+import 'package:todo_app/services/theme_service.dart';
 import 'package:todo_app/util/dashboard_banner.dart';
 import 'package:todo_app/util/dialog_box.dart';
 import 'package:todo_app/util/todo_tile.dart';
@@ -235,23 +236,23 @@ class _HomePageState extends State<HomePage> {
     final tasks = _filteredAndSortedTasks;
     final totalCount = db.toDoList.length;
     final completedCount = db.toDoList.where((t) => t.isCompleted).length;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: Colors.yellow[200],
       appBar: AppBar(
         title: _isSearching
             ? TextField(
                 controller: _searchController,
                 autofocus: true,
-                style: const TextStyle(
-                  color: Colors.black,
+                style: TextStyle(
+                  color: isDark ? Colors.white : Colors.black87,
                   fontSize: 18,
                 ),
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   hintText: 'Search tasks...',
                   border: InputBorder.none,
                   hintStyle: TextStyle(
-                    color: Colors.black54,
+                    color: isDark ? Colors.white54 : Colors.black54,
                     fontSize: 18,
                   ),
                 ),
@@ -301,6 +302,19 @@ class _HomePageState extends State<HomePage> {
               },
             ),
           ],
+          IconButton(
+            icon: Icon(
+              ThemeService().isDarkMode ? Icons.light_mode : Icons.dark_mode,
+            ),
+            tooltip: ThemeService().isDarkMode
+                ? 'Switch to Light Mode'
+                : 'Switch to Dark Mode',
+            onPressed: () {
+              setState(() {
+                ThemeService().toggleTheme();
+              });
+            },
+          ),
           PopupMenuButton<SortOption>(
             icon: const Icon(Icons.sort),
             tooltip: 'Sort tasks',
@@ -348,15 +362,17 @@ class _HomePageState extends State<HomePage> {
                       child: ChoiceChip(
                         label: Text(status.label),
                         selected: _statusFilter == status,
-                        selectedColor: Colors.black,
+                        selectedColor: isDark ? Colors.amber : Colors.black,
                         labelStyle: TextStyle(
                           color: _statusFilter == status
-                              ? Colors.yellow
-                              : Colors.black87,
+                              ? (isDark ? Colors.black : Colors.yellow)
+                              : (isDark ? Colors.white70 : Colors.black87),
                           fontWeight: FontWeight.w600,
                           fontSize: 13,
                         ),
-                        backgroundColor: Colors.yellow[300],
+                        backgroundColor: isDark
+                            ? const Color(0xFF2C2C2C)
+                            : Colors.yellow[300],
                         onSelected: (selected) {
                           if (selected) {
                             setState(() {
@@ -372,7 +388,7 @@ class _HomePageState extends State<HomePage> {
                   Container(
                     height: 24,
                     width: 1.5,
-                    color: Colors.black26,
+                    color: isDark ? Colors.white24 : Colors.black26,
                     margin: const EdgeInsets.symmetric(horizontal: 6),
                   ),
 
@@ -383,15 +399,17 @@ class _HomePageState extends State<HomePage> {
                       child: ChoiceChip(
                         label: Text(category),
                         selected: _selectedCategory == category,
-                        selectedColor: Colors.black,
+                        selectedColor: isDark ? Colors.amber : Colors.black,
                         labelStyle: TextStyle(
                           color: _selectedCategory == category
-                              ? Colors.yellow
-                              : Colors.black87,
+                              ? (isDark ? Colors.black : Colors.yellow)
+                              : (isDark ? Colors.white70 : Colors.black87),
                           fontWeight: FontWeight.w600,
                           fontSize: 13,
                         ),
-                        backgroundColor: Colors.yellow[300],
+                        backgroundColor: isDark
+                            ? const Color(0xFF2C2C2C)
+                            : Colors.yellow[300],
                         onSelected: (selected) {
                           if (selected) {
                             setState(() {
@@ -416,12 +434,12 @@ class _HomePageState extends State<HomePage> {
           // Tasks List
           Expanded(
             child: tasks.isEmpty
-                ? const Center(
+                ? Center(
                     child: Text(
                       'No tasks found',
                       style: TextStyle(
                         fontSize: 16,
-                        color: Colors.black54,
+                        color: isDark ? Colors.white60 : Colors.black54,
                         fontWeight: FontWeight.w500,
                       ),
                     ),

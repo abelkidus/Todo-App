@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:todo_app/data/database.dart';
 import 'package:todo_app/models/task.dart';
 import 'package:todo_app/pages/home_page.dart';
+import 'package:todo_app/services/theme_service.dart';
 import 'package:todo_app/util/todo_tile.dart';
 
 class FakeToDoDataBase implements ToDoDataBase {
@@ -333,5 +334,38 @@ void main() {
 
     // Now: 2 completed of 3 total tasks -> 66%
     expect(find.text('2 of 3 completed (66%)'), findsOneWidget);
+  });
+
+  testWidgets('toggles between dark and light theme via AppBar action button',
+      (WidgetTester tester) async {
+    final db = FakeToDoDataBase();
+    final themeService = ThemeService();
+    themeService.themeModeNotifier.value = ThemeMode.light;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: HomePage(database: db),
+      ),
+    );
+    await tester.pump();
+
+    // Initially in light mode: shows dark_mode icon to switch to dark
+    expect(find.byIcon(Icons.dark_mode), findsOneWidget);
+
+    // Tap theme toggle button
+    await tester.tap(find.byIcon(Icons.dark_mode));
+    await tester.pumpAndSettle();
+
+    // Now in dark mode: shows light_mode icon to switch back
+    expect(find.byIcon(Icons.light_mode), findsOneWidget);
+    expect(themeService.isDarkMode, isTrue);
+
+    // Tap theme toggle button again
+    await tester.tap(find.byIcon(Icons.light_mode));
+    await tester.pumpAndSettle();
+
+    // Switched back to light mode
+    expect(find.byIcon(Icons.dark_mode), findsOneWidget);
+    expect(themeService.isDarkMode, isFalse);
   });
 }

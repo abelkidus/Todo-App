@@ -78,13 +78,24 @@ class ToDoTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Padding(
       padding: const EdgeInsets.only(left: 20, top: 16, right: 20),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
         child: Container(
-          decoration: const BoxDecoration(
-            color: Colors.yellow,
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
+            boxShadow: isDark
+                ? [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.3),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
           ),
           child: IntrinsicHeight(
             child: Row(
@@ -112,7 +123,8 @@ class ToDoTile extends StatelessWidget {
                           child: Checkbox(
                             value: taskCompleted,
                             onChanged: onChanged,
-                            activeColor: Colors.black,
+                            activeColor: isDark ? Colors.amber : Colors.black,
+                            checkColor: isDark ? Colors.black : Colors.white,
                             materialTapTargetSize:
                                 MaterialTapTargetSize.shrinkWrap,
                           ),
@@ -133,15 +145,19 @@ class ToDoTile extends StatelessWidget {
                                       vertical: 2,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: Colors.black12,
+                                      color: isDark
+                                          ? Colors.white.withValues(alpha: 0.1)
+                                          : Colors.black12,
                                       borderRadius: BorderRadius.circular(6),
                                     ),
                                     child: Text(
                                       category,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 11,
                                         fontWeight: FontWeight.bold,
-                                        color: Colors.black87,
+                                        color: isDark
+                                            ? Colors.white70
+                                            : Colors.black87,
                                       ),
                                     ),
                                   ),
@@ -168,8 +184,8 @@ class ToDoTile extends StatelessWidget {
                                       ? TextDecoration.lineThrough
                                       : TextDecoration.none,
                                   color: taskCompleted
-                                      ? Colors.black45
-                                      : Colors.black87,
+                                      ? (isDark ? Colors.white38 : Colors.black45)
+                                      : (isDark ? Colors.white : Colors.black87),
                                 ),
                               ),
 
@@ -182,8 +198,12 @@ class ToDoTile extends StatelessWidget {
                                       Icons.event,
                                       size: 14,
                                       color: _isOverdue
-                                          ? Colors.red.shade700
-                                          : Colors.black54,
+                                          ? (isDark
+                                              ? Colors.red.shade400
+                                              : Colors.red.shade700)
+                                          : (isDark
+                                              ? Colors.white60
+                                              : Colors.black54),
                                     ),
                                     const SizedBox(width: 4),
                                     Text(
@@ -194,8 +214,12 @@ class ToDoTile extends StatelessWidget {
                                             ? FontWeight.bold
                                             : FontWeight.normal,
                                         color: _isOverdue
-                                            ? Colors.red.shade700
-                                            : Colors.black54,
+                                            ? (isDark
+                                                ? Colors.red.shade400
+                                                : Colors.red.shade700)
+                                            : (isDark
+                                                ? Colors.white60
+                                                : Colors.black54),
                                       ),
                                     ),
                                     if (_isOverdue) ...[
@@ -206,11 +230,16 @@ class ToDoTile extends StatelessWidget {
                                           vertical: 1,
                                         ),
                                         decoration: BoxDecoration(
-                                          color: Colors.red.shade100,
+                                          color: isDark
+                                              ? Colors.red.shade900
+                                                  .withValues(alpha: 0.5)
+                                              : Colors.red.shade100,
                                           borderRadius:
                                               BorderRadius.circular(4),
                                           border: Border.all(
-                                            color: Colors.red.shade400,
+                                            color: isDark
+                                                ? Colors.red.shade700
+                                                : Colors.red.shade400,
                                             width: 0.8,
                                           ),
                                         ),
@@ -219,7 +248,9 @@ class ToDoTile extends StatelessWidget {
                                           style: TextStyle(
                                             fontSize: 10,
                                             fontWeight: FontWeight.bold,
-                                            color: Colors.red.shade800,
+                                            color: isDark
+                                                ? Colors.red.shade200
+                                                : Colors.red.shade800,
                                           ),
                                         ),
                                       ),

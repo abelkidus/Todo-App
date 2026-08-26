@@ -81,14 +81,19 @@ class _DialogBoxState extends State<DialogBox> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return AlertDialog(
-      backgroundColor: Colors.yellow[200],
+      backgroundColor: isDark ? const Color(0xFF242424) : Colors.yellow[200],
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
-      title: const Text(
+      title: Text(
         'Add New Task',
-        style: TextStyle(fontWeight: FontWeight.bold),
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          color: isDark ? Colors.white : Colors.black87,
+        ),
       ),
       content: SingleChildScrollView(
         child: Column(
@@ -99,19 +104,29 @@ class _DialogBoxState extends State<DialogBox> {
             TextField(
               controller: widget.controller,
               autofocus: true,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
+              style: TextStyle(
+                color: isDark ? Colors.white : Colors.black87,
+              ),
+              decoration: InputDecoration(
+                border: const OutlineInputBorder(),
                 filled: true,
-                fillColor: Colors.white,
+                fillColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
                 hintText: 'Add a new task',
+                hintStyle: TextStyle(
+                  color: isDark ? Colors.white54 : Colors.black54,
+                ),
               ),
             ),
             const SizedBox(height: 16),
 
             // Category Selection (ChoiceChips)
-            const Text(
+            Text(
               'Category',
-              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+                color: isDark ? Colors.white : Colors.black87,
+              ),
             ),
             const SizedBox(height: 6),
             Wrap(
@@ -122,8 +137,15 @@ class _DialogBoxState extends State<DialogBox> {
                 return ChoiceChip(
                   label: Text(category),
                   selected: isSelected,
-                  selectedColor: Colors.yellow[700],
-                  backgroundColor: Colors.white,
+                  selectedColor: isDark ? Colors.amber : Colors.yellow[700],
+                  backgroundColor:
+                      isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                  labelStyle: TextStyle(
+                    color: isSelected
+                        ? (isDark ? Colors.black : Colors.black87)
+                        : (isDark ? Colors.white70 : Colors.black87),
+                    fontWeight: FontWeight.w600,
+                  ),
                   onSelected: (selected) {
                     if (selected) {
                       setState(() {
@@ -137,9 +159,13 @@ class _DialogBoxState extends State<DialogBox> {
             const SizedBox(height: 16),
 
             // Priority Selection (SegmentedButton)
-            const Text(
+            Text(
               'Priority',
-              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+                color: isDark ? Colors.white : Colors.black87,
+              ),
             ),
             const SizedBox(height: 6),
             SizedBox(
@@ -172,9 +198,17 @@ class _DialogBoxState extends State<DialogBox> {
                   backgroundColor: WidgetStateProperty.resolveWith<Color?>(
                     (states) {
                       if (states.contains(WidgetState.selected)) {
-                        return Colors.yellow[700];
+                        return isDark ? Colors.amber : Colors.yellow[700];
                       }
-                      return Colors.white;
+                      return isDark ? const Color(0xFF1E1E1E) : Colors.white;
+                    },
+                  ),
+                  foregroundColor: WidgetStateProperty.resolveWith<Color?>(
+                    (states) {
+                      if (states.contains(WidgetState.selected)) {
+                        return Colors.black;
+                      }
+                      return isDark ? Colors.white70 : Colors.black87;
                     },
                   ),
                 ),
@@ -183,9 +217,13 @@ class _DialogBoxState extends State<DialogBox> {
             const SizedBox(height: 16),
 
             // DatePicker Button (Deadline)
-            const Text(
+            Text(
               'Deadline',
-              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+                color: isDark ? Colors.white : Colors.black87,
+              ),
             ),
             const SizedBox(height: 6),
             Row(
@@ -200,19 +238,18 @@ class _DialogBoxState extends State<DialogBox> {
                           : 'Due: ${_formatDate(_selectedDueDate!)}',
                     ),
                     style: OutlinedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.black87,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 12,
-                      ),
+                      backgroundColor:
+                          isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                      foregroundColor:
+                          isDark ? Colors.white70 : Colors.black87,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
                   ),
                 ),
                 if (_selectedDueDate != null) ...[
                   const SizedBox(width: 8),
                   IconButton(
-                    icon: const Icon(Icons.clear, color: Colors.red),
+                    icon: const Icon(Icons.clear, size: 20),
                     tooltip: 'Clear deadline',
                     onPressed: () {
                       setState(() {
@@ -223,19 +260,20 @@ class _DialogBoxState extends State<DialogBox> {
                 ],
               ],
             ),
+            const SizedBox(height: 20),
+
+            // Action Buttons (Save & Cancel)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                MyButton(text: 'Save', onPressed: _handleSave),
+                const SizedBox(width: 8),
+                MyButton(text: 'Cancel', onPressed: widget.onCancel),
+              ],
+            ),
           ],
         ),
       ),
-      actions: [
-        MyButton(
-          text: 'Cancel',
-          onPressed: widget.onCancel,
-        ),
-        MyButton(
-          text: 'Save',
-          onPressed: _handleSave,
-        ),
-      ],
     );
   }
 }
