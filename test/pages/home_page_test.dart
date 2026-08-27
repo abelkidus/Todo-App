@@ -368,4 +368,44 @@ void main() {
     expect(find.byIcon(Icons.dark_mode), findsOneWidget);
     expect(themeService.isDarkMode, isFalse);
   });
+
+  testWidgets('tapping a task card opens Edit Task dialog and saves changes',
+      (WidgetTester tester) async {
+    final db = FakeToDoDataBase();
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: HomePage(database: db),
+      ),
+    );
+    await tester.pump();
+
+    // Verify initial task title
+    expect(find.text('Watch tutorial'), findsOneWidget);
+
+    // Tap on the task title to edit
+    await tester.tap(find.text('Watch tutorial'));
+    await tester.pumpAndSettle();
+
+    // Verify Edit Task dialog opened with pre-filled title
+    expect(find.text('Edit Task'), findsOneWidget);
+    expect(find.widgetWithText(TextField, 'Watch tutorial'), findsOneWidget);
+
+    // Clear and enter updated title
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Watch tutorial'),
+      'Watch Advanced Flutter tutorial',
+    );
+    await tester.pumpAndSettle();
+
+    // Tap Save button
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+
+    // Dialog dismissed and updated task title visible
+    expect(find.text('Edit Task'), findsNothing);
+    expect(find.text('Watch Advanced Flutter tutorial'), findsOneWidget);
+    expect(find.text('Watch tutorial'), findsNothing);
+    expect(db.toDoList.first.title, 'Watch Advanced Flutter tutorial');
+  });
 }

@@ -178,6 +178,56 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void editTask(Task task) {
+    final editController = TextEditingController(text: task.title);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return DialogBox(
+          title: 'Edit Task',
+          controller: editController,
+          initialCategory: task.category,
+          initialPriority: task.priority,
+          initialDueDate: task.dueDate,
+          onSave: ([
+            String? title,
+            String? category,
+            Priority? priority,
+            DateTime? dueDate,
+          ]) {
+            final taskTitle = (title != null && title.isNotEmpty)
+                ? title
+                : editController.text;
+            if (taskTitle.trim().isNotEmpty) {
+              final index = db.toDoList.indexWhere((t) => t.id == task.id);
+              if (index != -1) {
+                final updatedTask = task.copyWith(
+                  title: taskTitle.trim(),
+                  category: category ?? task.category,
+                  priority: priority ?? task.priority,
+                  dueDate: dueDate,
+                );
+                setState(() {
+                  db.toDoList[index] = updatedTask;
+                  db.updateDataBase();
+                });
+
+                if (updatedTask.isCompleted || updatedTask.dueDate == null) {
+                  notifications.cancelTaskNotification(updatedTask.id);
+                } else {
+                  notifications.scheduleTaskDeadlineNotification(updatedTask);
+                }
+              }
+            }
+            Navigator.of(context).pop();
+          },
+          onCancel: () => Navigator.of(context).pop(),
+        );
+      },
+    );
+  }
+
   void deleteTask(Task task) {
     final deletedIndex = db.toDoList.indexWhere((t) => t.id == task.id);
     if (deletedIndex == -1) return;
@@ -464,6 +514,7 @@ class _HomePageState extends State<HomePage> {
                           task: task,
                           onChanged: (value) => checkBoxChanged(value, task),
                           deleteFunction: (context) => deleteTask(task),
+                          onEdit: () => editTask(task),
                         ),
                       );
                     },

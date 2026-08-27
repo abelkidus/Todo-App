@@ -9,6 +9,7 @@ class DialogBox extends StatefulWidget {
   final String initialCategory;
   final Priority initialPriority;
   final DateTime? initialDueDate;
+  final String title;
 
   const DialogBox({
     super.key,
@@ -18,6 +19,7 @@ class DialogBox extends StatefulWidget {
     this.initialCategory = 'Work',
     this.initialPriority = Priority.medium,
     this.initialDueDate,
+    this.title = 'Add New Task',
   });
 
   @override
@@ -89,7 +91,7 @@ class _DialogBoxState extends State<DialogBox> {
         borderRadius: BorderRadius.circular(16),
       ),
       title: Text(
-        'Add New Task',
+        widget.title,
         style: TextStyle(
           fontWeight: FontWeight.bold,
           color: isDark ? Colors.white : Colors.black87,
