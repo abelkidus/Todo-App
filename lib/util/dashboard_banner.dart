@@ -20,20 +20,27 @@ class DashboardBanner extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      margin: const EdgeInsets.fromLTRB(20, 4, 20, 10),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E1E) : Colors.yellow[400],
-        borderRadius: BorderRadius.circular(16),
-        border: isDark
-            ? Border.all(color: Colors.white.withValues(alpha: 0.1), width: 0.8)
-            : null,
+        gradient: LinearGradient(
+          colors: isDark
+              ? const [Color(0xFF1E293B), Color(0xFF0F172A)]
+              : const [Color(0xFFFFFBEB), Color(0xFFFEF3C7)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: isDark ? const Color(0xFF334155) : const Color(0xFFFDE68A),
+          width: 1.2,
+        ),
         boxShadow: [
           BoxShadow(
             color: isDark
                 ? Colors.black.withValues(alpha: 0.3)
-                : Colors.black.withValues(alpha: 0.06),
-            blurRadius: 10,
+                : const Color(0x0D0F172A),
+            blurRadius: 12,
             offset: const Offset(0, 4),
           ),
         ],
@@ -47,49 +54,68 @@ class DashboardBanner extends StatelessWidget {
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(6),
+                    padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       color: isDark
-                          ? Colors.white.withValues(alpha: 0.1)
-                          : Colors.black.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(8),
+                          ? const Color(0x33FBBF24)
+                          : const Color(0xFFFEF08A),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(
                       Icons.task_alt,
                       size: 20,
-                      color: isDark ? Colors.amber : Colors.black87,
+                      color: isDark
+                          ? const Color(0xFFFBBF24)
+                          : const Color(0xFFD97706),
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 12),
                   Text(
                     'Progress',
                     style: TextStyle(
                       fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: isDark ? Colors.white : Colors.black87,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.2,
+                      color: isDark
+                          ? const Color(0xFFF8FAFC)
+                          : const Color(0xFF92400E),
                     ),
                   ),
                 ],
               ),
-              Text(
-                '$completedCount of $totalCount completed ($percentage%)',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: isDark ? Colors.white70 : Colors.black87,
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? const Color(0x26FBBF24)
+                      : const Color(0xFFFEF08A),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  '$completedCount of $totalCount completed ($percentage%)',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: isDark
+                        ? const Color(0xFFFDE68A)
+                        : const Color(0xFF92400E),
+                  ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           ClipRRect(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(10),
             child: LinearProgressIndicator(
               value: progress,
-              minHeight: 8,
-              backgroundColor: isDark ? Colors.white12 : Colors.black12,
+              minHeight: 10,
+              backgroundColor: isDark
+                  ? const Color(0xFF334155)
+                  : const Color(0xFFFDE68A),
               valueColor: AlwaysStoppedAnimation<Color>(
-                isDark ? Colors.amber : Colors.black87,
+                isDark ? const Color(0xFFFBBF24) : const Color(0xFFD97706),
               ),
             ),
           ),

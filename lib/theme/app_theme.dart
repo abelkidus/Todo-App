@@ -1,40 +1,64 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
+  // Light Palette Constants
+  static const Color lightBackground = Color(0xFFF8FAFC); // Slate 50
+  static const Color lightCard = Color(0xFFFFFFFF);
+  static const Color lightBorder = Color(0xFFE2E8F0); // Slate 200
+  static const Color lightTextPrimary = Color(0xFF0F172A); // Slate 900
+  static const Color lightTextSecondary = Color(0xFF64748B); // Slate 500
+  static const Color lightPrimary = Color(0xFFF59E0B); // Amber 500
+  static const Color lightPrimaryDark = Color(0xFFD97706); // Amber 600
+
+  // Dark Palette Constants
+  static const Color darkBackground = Color(0xFF0B0F19); // Deep Obsidian
+  static const Color darkCard = Color(0xFF1E293B); // Slate 800
+  static const Color darkBorder = Color(0xFF334155); // Slate 700
+  static const Color darkTextPrimary = Color(0xFFF8FAFC);
+  static const Color darkTextSecondary = Color(0xFF94A3B8);
+  static const Color darkPrimary = Color(0xFFFBBF24); // Amber 400
+
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
-      primarySwatch: Colors.yellow,
-      scaffoldBackgroundColor: Colors.yellow[200],
-      cardColor: Colors.yellow,
-      colorScheme: ColorScheme.light(
-        primary: Colors.black,
-        secondary: Colors.amber.shade700,
-        surface: Colors.yellow,
-        onSurface: Colors.black87,
-        surfaceContainerHighest: Colors.yellow[400]!,
+      scaffoldBackgroundColor: lightBackground,
+      cardColor: lightCard,
+      dividerColor: lightBorder,
+      colorScheme: const ColorScheme.light(
+        primary: Color(0xFF0F172A),
+        secondary: lightPrimary,
+        surface: lightCard,
+        onSurface: lightTextPrimary,
+        surfaceContainerHighest: Color(0xFFF1F5F9),
       ),
-      appBarTheme: AppBarTheme(
-        backgroundColor: Colors.yellow,
-        foregroundColor: Colors.black87,
+      appBarTheme: const AppBarTheme(
+        backgroundColor: lightCard,
+        foregroundColor: lightTextPrimary,
         elevation: 0,
+        scrolledUnderElevation: 0.5,
         centerTitle: true,
-        titleTextStyle: const TextStyle(
-          color: Colors.black87,
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
+        titleTextStyle: TextStyle(
+          color: lightTextPrimary,
+          fontSize: 18,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.5,
         ),
-        iconTheme: const IconThemeData(color: Colors.black87),
+        iconTheme: IconThemeData(color: lightTextPrimary),
       ),
-      floatingActionButtonTheme: const FloatingActionButtonThemeData(
-        backgroundColor: Colors.yellow,
-        foregroundColor: Colors.black,
-      ),
-      dialogTheme: DialogThemeData(
-        backgroundColor: Colors.yellow[200],
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        backgroundColor: lightPrimary,
+        foregroundColor: Colors.white,
+        elevation: 4,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
+        ),
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: lightCard,
+        elevation: 10,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
         ),
       ),
     );
@@ -44,36 +68,43 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
-      primarySwatch: Colors.amber,
-      scaffoldBackgroundColor: const Color(0xFF121212),
-      cardColor: const Color(0xFF1E1E1E),
+      scaffoldBackgroundColor: darkBackground,
+      cardColor: darkCard,
+      dividerColor: darkBorder,
       colorScheme: const ColorScheme.dark(
-        primary: Colors.amber,
-        secondary: Colors.amberAccent,
-        surface: Color(0xFF1E1E1E),
-        onSurface: Colors.white,
-        surfaceContainerHighest: Color(0xFF2C2C2C),
+        primary: darkPrimary,
+        secondary: Color(0xFF60A5FA),
+        surface: darkCard,
+        onSurface: darkTextPrimary,
+        surfaceContainerHighest: Color(0xFF334155),
       ),
       appBarTheme: const AppBarTheme(
-        backgroundColor: Color(0xFF1E1E1E),
-        foregroundColor: Colors.amber,
+        backgroundColor: darkCard,
+        foregroundColor: darkTextPrimary,
         elevation: 0,
+        scrolledUnderElevation: 0.5,
         centerTitle: true,
         titleTextStyle: TextStyle(
-          color: Colors.white,
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
+          color: darkTextPrimary,
+          fontSize: 18,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.5,
         ),
-        iconTheme: IconThemeData(color: Colors.white),
+        iconTheme: IconThemeData(color: darkTextPrimary),
       ),
-      floatingActionButtonTheme: const FloatingActionButtonThemeData(
-        backgroundColor: Colors.amber,
-        foregroundColor: Colors.black,
-      ),
-      dialogTheme: DialogThemeData(
-        backgroundColor: const Color(0xFF242424),
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        backgroundColor: darkPrimary,
+        foregroundColor: const Color(0xFF0F172A),
+        elevation: 4,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
+        ),
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: darkCard,
+        elevation: 10,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
         ),
       ),
     );

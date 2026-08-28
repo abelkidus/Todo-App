@@ -4,21 +4,21 @@ import 'package:todo_app/theme/app_theme.dart';
 
 void main() {
   group('AppTheme Tests', () {
-    test('lightTheme has light brightness and signature yellow background', () {
+    test('lightTheme has light brightness and modern light canvas colors', () {
       final theme = AppTheme.lightTheme;
       expect(theme.brightness, Brightness.light);
-      expect(theme.scaffoldBackgroundColor, Colors.yellow[200]);
-      expect(theme.cardColor, Colors.yellow);
-      expect(theme.colorScheme.onSurface, Colors.black87);
+      expect(theme.scaffoldBackgroundColor, AppTheme.lightBackground);
+      expect(theme.cardColor, AppTheme.lightCard);
+      expect(theme.colorScheme.onSurface, AppTheme.lightTextPrimary);
     });
 
-    test('darkTheme has dark brightness and dark surface colors', () {
+    test('darkTheme has dark brightness and dark slate surface colors', () {
       final theme = AppTheme.darkTheme;
       expect(theme.brightness, Brightness.dark);
-      expect(theme.scaffoldBackgroundColor, const Color(0xFF121212));
-      expect(theme.cardColor, const Color(0xFF1E1E1E));
-      expect(theme.colorScheme.primary, Colors.amber);
-      expect(theme.colorScheme.onSurface, Colors.white);
+      expect(theme.scaffoldBackgroundColor, AppTheme.darkBackground);
+      expect(theme.cardColor, AppTheme.darkCard);
+      expect(theme.colorScheme.primary, AppTheme.darkPrimary);
+      expect(theme.colorScheme.onSurface, AppTheme.darkTextPrimary);
     });
   });
 }

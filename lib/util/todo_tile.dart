@@ -54,11 +54,43 @@ class ToDoTile extends StatelessWidget {
   Color get _priorityColor {
     switch (priority) {
       case Priority.high:
-        return Colors.red;
+        return const Color(0xFFEF4444); // Red 500
       case Priority.medium:
-        return Colors.amber.shade700;
+        return const Color(0xFFF59E0B); // Amber 500
       case Priority.low:
-        return Colors.green;
+        return const Color(0xFF10B981); // Emerald 500
+    }
+  }
+
+  Color _getCategoryBgColor(bool isDark) {
+    switch (category.toLowerCase()) {
+      case 'work':
+        return isDark ? const Color(0x263B82F6) : const Color(0xFFEFF6FF);
+      case 'personal':
+        return isDark ? const Color(0x26A855F7) : const Color(0xFFFAF5FF);
+      case 'fitness':
+        return isDark ? const Color(0x2610B981) : const Color(0xFFECFDF5);
+      case 'study':
+      case 'learning':
+        return isDark ? const Color(0x26F97316) : const Color(0xFFFFF7ED);
+      default:
+        return isDark ? const Color(0x2664748B) : const Color(0xFFF1F5F9);
+    }
+  }
+
+  Color _getCategoryTextColor(bool isDark) {
+    switch (category.toLowerCase()) {
+      case 'work':
+        return isDark ? const Color(0xFF93C5FD) : const Color(0xFF2563EB);
+      case 'personal':
+        return isDark ? const Color(0xFFD8B4FE) : const Color(0xFF9333EA);
+      case 'fitness':
+        return isDark ? const Color(0xFF6EE7B7) : const Color(0xFF059669);
+      case 'study':
+      case 'learning':
+        return isDark ? const Color(0xFFFDBA74) : const Color(0xFFEA580C);
+      default:
+        return isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569);
     }
   }
 
@@ -85,30 +117,41 @@ class ToDoTile extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Padding(
-      padding: const EdgeInsets.only(left: 20, top: 16, right: 20),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).cardColor,
-            boxShadow: isDark
-                ? [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.3),
-                      blurRadius: 6,
-                      offset: const Offset(0, 2),
-                    ),
-                  ]
-                : null,
+      padding: const EdgeInsets.only(left: 20, top: 12, right: 20),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+            width: 1.1,
           ),
+          boxShadow: [
+            BoxShadow(
+              color: isDark
+                  ? Colors.black.withValues(alpha: 0.25)
+                  : const Color(0x0A0F172A),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(16),
           child: IntrinsicHeight(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // Colored left border indicator for priority
                 Container(
-                  width: 6,
-                  color: _priorityColor,
+                  width: 5,
+                  decoration: BoxDecoration(
+                    color: _priorityColor,
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(16),
+                      bottomLeft: Radius.circular(16),
+                    ),
+                  ),
                 ),
 
                 // Main card body
@@ -127,8 +170,21 @@ class ToDoTile extends StatelessWidget {
                           child: Checkbox(
                             value: taskCompleted,
                             onChanged: onChanged,
-                            activeColor: isDark ? Colors.amber : Colors.black,
-                            checkColor: isDark ? Colors.black : Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            activeColor: isDark
+                                ? const Color(0xFFFBBF24)
+                                : const Color(0xFFF59E0B),
+                            checkColor: isDark
+                                ? const Color(0xFF0F172A)
+                                : Colors.white,
+                            side: BorderSide(
+                              color: isDark
+                                  ? const Color(0xFF64748B)
+                                  : const Color(0xFF94A3B8),
+                              width: 1.5,
+                            ),
                             materialTapTargetSize:
                                 MaterialTapTargetSize.shrinkWrap,
                           ),
@@ -149,32 +205,42 @@ class ToDoTile extends StatelessWidget {
                                     Container(
                                       padding: const EdgeInsets.symmetric(
                                         horizontal: 8,
-                                        vertical: 2,
+                                        vertical: 3,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: isDark
-                                            ? Colors.white.withValues(alpha: 0.1)
-                                            : Colors.black12,
-                                        borderRadius: BorderRadius.circular(6),
+                                        color: _getCategoryBgColor(isDark),
+                                        borderRadius:
+                                            BorderRadius.circular(6),
                                       ),
                                       child: Text(
                                         category,
                                         style: TextStyle(
                                           fontSize: 11,
-                                          fontWeight: FontWeight.bold,
-                                          color: isDark
-                                              ? Colors.white70
-                                              : Colors.black87,
+                                          fontWeight: FontWeight.w700,
+                                          color:
+                                              _getCategoryTextColor(isDark),
                                         ),
                                       ),
                                     ),
                                     const Spacer(),
-                                    Text(
-                                      priority.displayName,
-                                      style: TextStyle(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.bold,
-                                        color: _priorityColor,
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 6,
+                                        vertical: 2,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: _priorityColor
+                                            .withValues(alpha: 0.12),
+                                        borderRadius:
+                                            BorderRadius.circular(6),
+                                      ),
+                                      child: Text(
+                                        priority.displayName,
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w700,
+                                          color: _priorityColor,
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -185,18 +251,19 @@ class ToDoTile extends StatelessWidget {
                                 Text(
                                   taskName,
                                   style: TextStyle(
-                                    fontSize: 16,
+                                    fontSize: 15,
                                     fontWeight: FontWeight.w600,
+                                    letterSpacing: -0.2,
                                     decoration: taskCompleted
                                         ? TextDecoration.lineThrough
                                         : TextDecoration.none,
                                     color: taskCompleted
                                         ? (isDark
-                                            ? Colors.white38
-                                            : Colors.black45)
+                                            ? const Color(0xFF64748B)
+                                            : const Color(0xFF94A3B8))
                                         : (isDark
-                                            ? Colors.white
-                                            : Colors.black87),
+                                            ? const Color(0xFFF8FAFC)
+                                            : const Color(0xFF0F172A)),
                                   ),
                                 ),
 
@@ -209,12 +276,10 @@ class ToDoTile extends StatelessWidget {
                                         Icons.event,
                                         size: 14,
                                         color: _isOverdue
-                                            ? (isDark
-                                                ? Colors.red.shade400
-                                                : Colors.red.shade700)
+                                            ? const Color(0xFFEF4444)
                                             : (isDark
-                                                ? Colors.white60
-                                                : Colors.black54),
+                                                ? const Color(0xFF94A3B8)
+                                                : const Color(0xFF64748B)),
                                       ),
                                       const SizedBox(width: 4),
                                       Text(
@@ -223,45 +288,43 @@ class ToDoTile extends StatelessWidget {
                                           fontSize: 12,
                                           fontWeight: _isOverdue
                                               ? FontWeight.bold
-                                              : FontWeight.normal,
+                                              : FontWeight.w500,
                                           color: _isOverdue
-                                              ? (isDark
-                                                  ? Colors.red.shade400
-                                                  : Colors.red.shade700)
+                                              ? const Color(0xFFEF4444)
                                               : (isDark
-                                                  ? Colors.white60
-                                                  : Colors.black54),
+                                                  ? const Color(0xFF94A3B8)
+                                                  : const Color(
+                                                      0xFF64748B)),
                                         ),
                                       ),
                                       if (_isOverdue) ...[
                                         const SizedBox(width: 6),
                                         Container(
-                                          padding: const EdgeInsets.symmetric(
+                                          padding:
+                                              const EdgeInsets.symmetric(
                                             horizontal: 6,
-                                            vertical: 1,
+                                            vertical: 2,
                                           ),
                                           decoration: BoxDecoration(
                                             color: isDark
-                                                ? Colors.red.shade900
-                                                    .withValues(alpha: 0.5)
-                                                : Colors.red.shade100,
+                                                ? const Color(0x33EF4444)
+                                                : const Color(0xFFFEF2F2),
                                             borderRadius:
                                                 BorderRadius.circular(4),
                                             border: Border.all(
                                               color: isDark
-                                                  ? Colors.red.shade700
-                                                  : Colors.red.shade400,
+                                                  ? const Color(0x66EF4444)
+                                                  : const Color(0xFFFECACA),
                                               width: 0.8,
                                             ),
                                           ),
-                                          child: Text(
+                                          child: const Text(
                                             'OVERDUE',
                                             style: TextStyle(
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.bold,
-                                              color: isDark
-                                                  ? Colors.red.shade200
-                                                  : Colors.red.shade800,
+                                              fontSize: 9,
+                                              fontWeight: FontWeight.w800,
+                                              letterSpacing: 0.3,
+                                              color: Color(0xFFEF4444),
                                             ),
                                           ),
                                         ),

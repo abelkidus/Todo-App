@@ -267,10 +267,10 @@ class _HomePageState extends State<HomePage> {
     required EdgeInsets padding,
   }) {
     return Container(
-      margin: const EdgeInsets.only(left: 20, top: 16, right: 20),
+      margin: const EdgeInsets.only(left: 20, top: 12, right: 20),
       decoration: BoxDecoration(
         color: Colors.red,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
       ),
       alignment: alignment,
       padding: padding,
@@ -295,15 +295,20 @@ class _HomePageState extends State<HomePage> {
                 controller: _searchController,
                 autofocus: true,
                 style: TextStyle(
-                  color: isDark ? Colors.white : Colors.black87,
-                  fontSize: 18,
+                  color: isDark
+                      ? const Color(0xFFF8FAFC)
+                      : const Color(0xFF0F172A),
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
                 ),
                 decoration: InputDecoration(
                   hintText: 'Search tasks...',
                   border: InputBorder.none,
                   hintStyle: TextStyle(
-                    color: isDark ? Colors.white54 : Colors.black54,
-                    fontSize: 18,
+                    color: isDark
+                        ? const Color(0xFF64748B)
+                        : const Color(0xFF94A3B8),
+                    fontSize: 16,
                   ),
                 ),
                 onChanged: (value) {
@@ -393,7 +398,7 @@ class _HomePageState extends State<HomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: createNewTask,
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.add, size: 28),
       ),
       body: Column(
         children: [
@@ -412,17 +417,35 @@ class _HomePageState extends State<HomePage> {
                       child: ChoiceChip(
                         label: Text(status.label),
                         selected: _statusFilter == status,
-                        selectedColor: isDark ? Colors.amber : Colors.black,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        side: BorderSide(
+                          color: _statusFilter == status
+                              ? (isDark
+                                  ? const Color(0xFFFBBF24)
+                                  : const Color(0xFF0F172A))
+                              : (isDark
+                                  ? const Color(0xFF334155)
+                                  : const Color(0xFFE2E8F0)),
+                        ),
+                        selectedColor: isDark
+                            ? const Color(0xFFFBBF24)
+                            : const Color(0xFF0F172A),
                         labelStyle: TextStyle(
                           color: _statusFilter == status
-                              ? (isDark ? Colors.black : Colors.yellow)
-                              : (isDark ? Colors.white70 : Colors.black87),
-                          fontWeight: FontWeight.w600,
-                          fontSize: 13,
+                              ? (isDark
+                                  ? const Color(0xFF0F172A)
+                                  : Colors.white)
+                              : (isDark
+                                  ? const Color(0xFF94A3B8)
+                                  : const Color(0xFF475569)),
+                          fontWeight: FontWeight.w700,
+                          fontSize: 12,
                         ),
                         backgroundColor: isDark
-                            ? const Color(0xFF2C2C2C)
-                            : Colors.yellow[300],
+                            ? const Color(0xFF1E293B)
+                            : const Color(0xFFF1F5F9),
                         onSelected: (selected) {
                           if (selected) {
                             setState(() {
@@ -436,9 +459,11 @@ class _HomePageState extends State<HomePage> {
 
                   // Divider between status and category
                   Container(
-                    height: 24,
+                    height: 20,
                     width: 1.5,
-                    color: isDark ? Colors.white24 : Colors.black26,
+                    color: isDark
+                        ? const Color(0xFF334155)
+                        : const Color(0xFFCBD5E1),
                     margin: const EdgeInsets.symmetric(horizontal: 6),
                   ),
 
@@ -449,17 +474,35 @@ class _HomePageState extends State<HomePage> {
                       child: ChoiceChip(
                         label: Text(category),
                         selected: _selectedCategory == category,
-                        selectedColor: isDark ? Colors.amber : Colors.black,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        side: BorderSide(
+                          color: _selectedCategory == category
+                              ? (isDark
+                                  ? const Color(0xFFFBBF24)
+                                  : const Color(0xFF0F172A))
+                              : (isDark
+                                  ? const Color(0xFF334155)
+                                  : const Color(0xFFE2E8F0)),
+                        ),
+                        selectedColor: isDark
+                            ? const Color(0xFFFBBF24)
+                            : const Color(0xFF0F172A),
                         labelStyle: TextStyle(
                           color: _selectedCategory == category
-                              ? (isDark ? Colors.black : Colors.yellow)
-                              : (isDark ? Colors.white70 : Colors.black87),
-                          fontWeight: FontWeight.w600,
-                          fontSize: 13,
+                              ? (isDark
+                                  ? const Color(0xFF0F172A)
+                                  : Colors.white)
+                              : (isDark
+                                  ? const Color(0xFF94A3B8)
+                                  : const Color(0xFF475569)),
+                          fontWeight: FontWeight.w700,
+                          fontSize: 12,
                         ),
                         backgroundColor: isDark
-                            ? const Color(0xFF2C2C2C)
-                            : Colors.yellow[300],
+                            ? const Color(0xFF1E293B)
+                            : const Color(0xFFF1F5F9),
                         onSelected: (selected) {
                           if (selected) {
                             setState(() {
@@ -485,17 +528,55 @@ class _HomePageState extends State<HomePage> {
           Expanded(
             child: tasks.isEmpty
                 ? Center(
-                    child: Text(
-                      'No tasks found',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: isDark ? Colors.white60 : Colors.black54,
-                        fontWeight: FontWeight.w500,
+                    child: Padding(
+                      padding: const EdgeInsets.all(32.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color: isDark
+                                  ? const Color(0xFF1E293B)
+                                  : const Color(0xFFF1F5F9),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.checklist_rounded,
+                              size: 48,
+                              color: isDark
+                                  ? const Color(0xFF64748B)
+                                  : const Color(0xFF94A3B8),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'No tasks found',
+                            style: TextStyle(
+                              fontSize: 17,
+                              color: isDark
+                                  ? const Color(0xFFF8FAFC)
+                                  : const Color(0xFF0F172A),
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            'Tap + to add a new task',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: isDark
+                                  ? const Color(0xFF94A3B8)
+                                  : const Color(0xFF64748B),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   )
                 : ListView.builder(
                     itemCount: tasks.length,
+                    padding: const EdgeInsets.only(bottom: 80),
                     itemBuilder: (context, index) {
                       final task = tasks[index];
 
